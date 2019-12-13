@@ -8,6 +8,21 @@ hbs.registerPartials(__dirname + "/views/components")
 app.set("view engine", "hbs")
 app.set("views", __dirname + "/views")
 
+let cookies
+
+// damit man aus dem partial auf die anzahl der Produkte im Warenkorb zugreifen kann
+// ohne, dass man für jede unterseite als parameter übergeben muss
+hbs.registerHelper("warenkorb_anzahl", function() {
+	var WarenkorbStr = cookies.get("Warenkorb", { signed: true })
+	let WarenkorbArr = Array.from(WarenkorbStr.split(","))
+
+	for (let i = 0; i < WarenkorbArr.length; i++) {
+		WarenkorbArr[i] = parseInt(WarenkorbArr[i])
+	}
+	let anzahl = WarenkorbArr.length
+	return anzahl
+})
+
 var con = mysql.createConnection({
 	host: "localhost",
 	user: "root",
@@ -21,6 +36,7 @@ con.connect(function(err) {
 	if (err) throw err
 
 	app.get("/", (req, res) => {
+		cookies = new Cookies(req, res, { keys: keys })
 		con.query("SELECT * FROM `artikel` ORDER BY RAND() LIMIT 3", function(
 			err,
 			result,
@@ -37,6 +53,7 @@ con.connect(function(err) {
 	})
 
 	app.get("/search", (req, res) => {
+		cookies = new Cookies(req, res, { keys: keys })
 		let suchbegriff = req.query.search
 		let suchergebnisse = []
 		console.log(suchbegriff)
@@ -65,15 +82,17 @@ con.connect(function(err) {
 	})
 
 	app.get("/kategorie", (req, res) => {
+		cookies = new Cookies(req, res, { keys: keys })
 		console.log(req.query.kategorie)
 		res.render("kategorie")
 	})
 
 	app.get("/warenkorb-hinzu", (req, res) => {
+		cookies = new Cookies(req, res, { keys: keys })
 		var keys = ["some stuff"]
 		// Zeitraum in MS, nachdem die Cookies auslaufen sollen
 		let ExpDate = 9999999999
-		var cookies = new Cookies(req, res, { keys: keys })
+
 		var WarenkorbCookie = cookies.get("Warenkorb", { signed: true })
 
 		if (WarenkorbCookie) {
@@ -110,8 +129,7 @@ con.connect(function(err) {
 	})
 
 	app.get("/warenkorb", (req, res) => {
-		var keys = ["some stuff"]
-		var cookies = new Cookies(req, res, { keys: keys })
+		cookies = new Cookies(req, res, { keys: keys })
 		// Get a cookie
 		var WarenkorbCookie = cookies.get("Warenkorb", { signed: true })
 
