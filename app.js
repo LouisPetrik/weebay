@@ -13,14 +13,18 @@ let cookies
 // damit man aus dem partial auf die anzahl der Produkte im Warenkorb zugreifen kann
 // ohne, dass man für jede unterseite als parameter übergeben muss
 hbs.registerHelper("warenkorb_anzahl", function() {
-	var WarenkorbStr = cookies.get("Warenkorb", { signed: true })
-	let WarenkorbArr = Array.from(WarenkorbStr.split(","))
+	var WarenkorbStr = cookies.get("Warenkorb")
+	if (WarenkorbStr) {
+		let WarenkorbArr = Array.from(WarenkorbStr.split(","))
 
-	for (let i = 0; i < WarenkorbArr.length; i++) {
-		WarenkorbArr[i] = parseInt(WarenkorbArr[i])
+		for (let i = 0; i < WarenkorbArr.length; i++) {
+			WarenkorbArr[i] = parseInt(WarenkorbArr[i])
+		}
+		let anzahl = WarenkorbArr.length
+		return anzahl
+	} else {
+		return 0
 	}
-	let anzahl = WarenkorbArr.length
-	return anzahl
 })
 
 var con = mysql.createConnection({
@@ -36,7 +40,7 @@ con.connect(function(err) {
 	if (err) throw err
 
 	app.get("/", (req, res) => {
-		cookies = new Cookies(req, res, { keys: keys })
+		cookies = new Cookies(req, res)
 		con.query("SELECT * FROM `artikel` ORDER BY RAND() LIMIT 3", function(
 			err,
 			result,
@@ -53,7 +57,7 @@ con.connect(function(err) {
 	})
 
 	app.get("/search", (req, res) => {
-		cookies = new Cookies(req, res, { keys: keys })
+		cookies = new Cookies(req, res)
 		let suchbegriff = req.query.search
 		let suchergebnisse = []
 		console.log(suchbegriff)
@@ -82,21 +86,21 @@ con.connect(function(err) {
 	})
 
 	app.get("/kategorie", (req, res) => {
-		cookies = new Cookies(req, res, { keys: keys })
+		cookies = new Cookies(req, res)
 		console.log(req.query.kategorie)
 		res.render("kategorie")
 	})
 
 	app.get("/warenkorb-hinzu", (req, res) => {
-		cookies = new Cookies(req, res, { keys: keys })
-		var keys = ["some stuff"]
+		cookies = new Cookies(req, res)
+
 		// Zeitraum in MS, nachdem die Cookies auslaufen sollen
 		let ExpDate = 9999999999
 
-		var WarenkorbCookie = cookies.get("Warenkorb", { signed: true })
+		var WarenkorbCookie = cookies.get("Warenkorb")
 
 		if (WarenkorbCookie) {
-			var WarenkorbStr = cookies.get("Warenkorb", { signed: true })
+			var WarenkorbStr = cookies.get("Warenkorb")
 			let WarenkorbArr = Array.from(WarenkorbStr.split(","))
 
 			for (let i = 0; i < WarenkorbArr.length; i++) {
@@ -111,7 +115,6 @@ con.connect(function(err) {
 			WarenkorbArr = WarenkorbArr.replace("]", "")
 
 			cookies.set("Warenkorb", WarenkorbArr, {
-				signed: true,
 				maxAge: ExpDate
 			})
 		} else {
@@ -121,7 +124,6 @@ con.connect(function(err) {
 			WarenkorbArr = WarenkorbArr.replace("]", "")
 
 			cookies.set("Warenkorb", WarenkorbArr, {
-				signed: true,
 				maxAge: ExpDate
 			})
 		}
@@ -129,9 +131,9 @@ con.connect(function(err) {
 	})
 
 	app.get("/warenkorb", (req, res) => {
-		cookies = new Cookies(req, res, { keys: keys })
+		cookies = new Cookies(req, res)
 		// Get a cookie
-		var WarenkorbCookie = cookies.get("Warenkorb", { signed: true })
+		var WarenkorbCookie = cookies.get("Warenkorb")
 
 		//console.log(cookies.get("Warenkorb"))
 		if (!WarenkorbCookie) {
