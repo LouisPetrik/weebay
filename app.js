@@ -88,6 +88,28 @@ con.connect(function(err) {
 	app.get("/kategorie", (req, res) => {
 		cookies = new Cookies(req, res)
 		console.log(req.query.kategorie)
+		con.query(
+			"SELECT * FROM artikel where bennenung LIKE" +
+				"'" +
+				suchbegriff +
+				"%" +
+				"';",
+
+			function(err, result, fields) {
+				if (err) throw err
+				/*for (let i = 0; i < result.length; i++) {
+					console.log(result[i].bennenung)
+				}*/
+
+				// einzelnen eintrag ausgeben: ("Name" und "address" vom ersten Eintrag der Tabelle)
+
+				res.render("search", {
+					titletag: "suchergebnisse",
+					suchbegriff: suchbegriff,
+					suchergebnisse: result
+				})
+			}
+		)
 		res.render("kategorie")
 	})
 
@@ -132,16 +154,35 @@ con.connect(function(err) {
 
 	app.get("/warenkorb", (req, res) => {
 		cookies = new Cookies(req, res)
-		// Get a cookie
+		// cookies kriegen und dann in die SQL query
 		var WarenkorbCookie = cookies.get("Warenkorb")
+
+		let WarenkorbArrBennenung = []
+		let WarenkorbArrPreis = []
 
 		//console.log(cookies.get("Warenkorb"))
 		if (!WarenkorbCookie) {
 			res.render("warenkorb")
 		} else {
-			res.render("warenkorb", {
-				inhalt: WarenkorbCookie
-			})
+			con.query(
+				"SELECT * FROM artikel where nummer_artikel in (" +
+					WarenkorbCookie +
+					");",
+
+				function(err, result, fields) {
+					if (err) throw err
+
+					for (let i = 0; i < result.length; i++) {
+						WarenkorbArrBennenung.push(result[i].bennenung)
+					}
+					console.log(WarenkorbArrBennenung)
+
+					res.render("warenkorb", {
+						titletag: "suchergebnisse",
+						inhalt: result
+					})
+				}
+			)
 		}
 	})
 })

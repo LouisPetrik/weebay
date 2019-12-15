@@ -3,7 +3,13 @@
 
 
 <h1>dein warenkorb:</h1>
-<p>{{inhalt}}</p>
+<ul>
+   {{#each inhalt}}
+   <li>{{this.nummer_artikel}}</li>
+   <li>{{this.bennenung}}</li>
+   <li>{{this.beschreibung}}</li>
+   {{/each}}
+</ul>
 
 <a href="/warenkorb-hinzu/?produkt=1">Produkt 1 adden</a>
 <a href="/warenkorb-hinzu/?produkt=2">Produkt 2 adden</a>

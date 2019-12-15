@@ -1,3 +1,4 @@
+/*
 let string = "1,2,3"
 
 let arr = Array.from(string.split(","))
@@ -13,3 +14,8 @@ let stringAgain = JSON.stringify(arr)
 stringAgain = stringAgain.replace("[", "")
 stringAgain = stringAgain.replace("]", "")
 console.log(stringAgain)
+*/
+
+let number = 6
+number /= 2
+console.log(number)
