@@ -1,5 +1,6 @@
 const express = require("express")
 const hbs = require("hbs")
+// importieren des MySQL-Modules:
 const mysql = require("mysql")
 const Cookies = require("cookies")
 const app = express()
@@ -26,7 +27,7 @@ hbs.registerHelper("warenkorb_anzahl", function() {
 		return 0
 	}
 })
-
+// Erstellen einer Verbindung zur Datenbank
 var con = mysql.createConnection({
 	host: "localhost",
 	user: "root",
@@ -58,7 +59,9 @@ con.connect(function(err) {
 
 	app.get("/search", (req, res) => {
 		cookies = new Cookies(req, res)
-		let suchbegriff = req.query.search
+		// Speichern des URL-Parameters mit dem Namen
+		// "suchbegriff" in der Variable "suchbegriff"
+		let suchbegriff = req.query.suchbegriff
 		let suchergebnisse = []
 		console.log(suchbegriff)
 		con.query(
@@ -69,15 +72,9 @@ con.connect(function(err) {
 				"';",
 
 			function(err, result, fields) {
-				if (err) throw err
-				/*for (let i = 0; i < result.length; i++) {
-					console.log(result[i].bennenung)
-				}*/
-
-				// einzelnen eintrag ausgeben: ("Name" und "address" vom ersten Eintrag der Tabelle)
-
+				if (err) console.log("fehler:", err)
 				res.render("search", {
-					titletag: "suchergebnisse",
+					titletag: "Suchergebnisse",
 					suchbegriff: suchbegriff,
 					suchergebnisse: result
 				})
